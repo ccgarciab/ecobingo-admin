@@ -5,28 +5,36 @@
 
   import { fade } from 'svelte/transition';
   
+  import FigureSelectionScreen from "./FigureSelectionScreen.svelte";
   import LoadScreen from "./LoadScreen.svelte";
   import PlayingScreen from "./PlayingScreen.svelte";
   import StartScreen from "./StartScreen.svelte";
   
   let screen = 0;
-  let card;
   let target = new Array(25).fill(false);
   target[12] = false;
-  let sessionData;
   let loguedUsers = 0;
+  let room;
+  let userCount;
+  let user;
 
   function stopGatherAndContinue(){
 
     stopGatherUsers();
-    screen = 2;
+    screen = 3;
   }
 
-  function createRoom(event){
+  function startTargetSelection(loginEvent){
 
     screen = 1;
+    ({user, room, userCount} = loginEvent.detail);
+  }
 
-    let {room, userCount} = event.detail;
+  function createRoom(layoutEvent){
+
+    screen = 2;
+
+    target = layoutEvent.detail.selectedLayout;
 
     notifier.addEventListener("notify", (e) => {
 
@@ -49,13 +57,16 @@
   
   </script>
   
+
   {#if screen == 0}
-    <StartScreen on:login={createRoom}/>
+    <StartScreen on:login={startTargetSelection}/>
   {:else if screen == 1}
+    <FigureSelectionScreen on:layout={createRoom}/>
+  {:else if screen == 2}
     <LoadScreen {loguedUsers} on:stopGather={stopGatherAndContinue} />
-  {:else}
+  {:else if screen == 3}
     <div transition:fade>
-      <PlayingScreen {users} {target} />
+      <PlayingScreen {user} {room} {users} {target} />
     </div>
   {/if}
   

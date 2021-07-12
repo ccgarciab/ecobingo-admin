@@ -9,6 +9,8 @@ import Logos from "./Logos.svelte";
 import Grid from "./Grid.svelte";
 import Sidebar from './Sidebar.svelte';
 
+export let user;
+export let room;
 export let users;
 export let target;
 
@@ -92,8 +94,8 @@ users.forEach((u) => {
   </div>
   <h1 style="color: #00A852;">BINGO AMBIENTAL</h1>
   <div style="display: flex; flex-direction: row ;padding-right: 2.5vw; padding-top: 2vh;">
-    <Label content="Sala: <b>ABCD</b>"/>
-    <Label content="Admin: <b>Nayibe</b>"/>
+    <Label content={`Sala: <b>${room}</b>`}/>
+    <Label content={`Admin: <b>${user}</b>`}/>
   </div>
 </div>
 

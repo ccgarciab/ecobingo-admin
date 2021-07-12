@@ -127,8 +127,6 @@ hr {
         <hr>
         <hr>
         <GoalFigure {target} />
-        <hr>
-        <button>modificar</button>
       </div>
     {/if}
   </nav>
