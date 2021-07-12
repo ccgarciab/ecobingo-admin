@@ -55,8 +55,6 @@ function getRandomCard(){
       codes.push(sublist[i]);
     }
   }
-
-  topLeft = codes[0];
   
   return codes;
 }
@@ -83,8 +81,5 @@ for(let i = 0; i < 5; ++i){
   let [l, n] = ["BINGO"[i], i * 15 + 1];
   allCodes = allCodes.concat(range(n, n + 15).map((m) => `${l}${m}`));
 }
-
-let topLeft = "B1"
-let last = "B2"
 
 export {getRandomCard, getRandomCode, allCodes};

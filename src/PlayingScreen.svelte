@@ -9,6 +9,9 @@ import Logos from "./Logos.svelte";
 import Grid from "./Grid.svelte";
 import Sidebar from './Sidebar.svelte';
 
+export let users;
+export let target;
+
 let bingoCode = "";
 let ballotDrawn = false;
 $: disabledDraw = ballotDrawn;
@@ -24,6 +27,7 @@ function drawBalot() {
 
 function sendBalot() {
 
+  users.forEach((u) => u.channel.send(bingoCode));
   if(bingoCode != ''){
 
     $markedStore.set(bingoCode, true);
@@ -31,6 +35,21 @@ function sendBalot() {
   }
   ballotDrawn = false;
 }
+
+users.forEach((u) => {
+
+  u.channel.onmessage = (_) => {
+
+    const won = target.every((required, i) => !required || $markedStore.get(u.card[i]));
+    if(won){
+      alert(`El Jugador ${u.name} ganó`);
+      u.channel.send("won");
+    }
+    else{
+      u.channel.send("lost");
+    }
+  }
+})
 
 </script>
 
@@ -93,4 +112,4 @@ function sendBalot() {
   </div>
 </div>
 
-<Sidebar bind:show={sidebarShow} />
+<Sidebar {users} {target} bind:show={sidebarShow} />

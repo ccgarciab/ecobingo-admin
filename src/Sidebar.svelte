@@ -3,16 +3,13 @@ import { fly } from 'svelte/transition';
 
 import GoalFigure from "./GoalFigure.svelte";
 
-export let numPlayers = 0;
-export let playerNames = Array(100).fill("aaaaa");
 export let show = false;
+export let target;
+export let users;
 
 let showingPlayers = true;
 $: disablePlayers = showingPlayers;
 $: disableFigure = !showingPlayers;
-
-let figure = Array(25).fill(false);
-figure[0] = true;
 
 function toggleShowSidebar(){
 
@@ -113,13 +110,13 @@ hr {
       <div class="player-display">
         <div style="display: flex; flex-direction: row;">
           <img src="images/user.svg" alt=""/>
-          <div style="color: #0166AF; margin-left: 5px;">{numPlayers}</div>
+          <div style="color: #0166AF; margin-left: 5px;">{users.length}</div>
         </div>
         <hr>
         <div class="player-tray">
-          {#each playerNames as player}
+          {#each users as player}
             <div class="user-box">
-              {player}
+              {player.name}
               <hr>
             </div>
           {/each}
@@ -129,7 +126,7 @@ hr {
       <div style="display: flex; flex-direction: column; justify-content: center;">
         <hr>
         <hr>
-        <GoalFigure {figure} />
+        <GoalFigure {target} />
         <hr>
         <button>modificar</button>
       </div>
@@ -142,6 +139,6 @@ hr {
     <div style="text-align: center;">
       <img src="images/user.svg" alt=""/>
     </div>
-    <div style="color: #0166AF; width: 3em; text-align: center;">{numPlayers}</div>
+    <div style="color: #0166AF; width: 3em; text-align: center;">{users.length}</div>
   </nav>
 {/if}

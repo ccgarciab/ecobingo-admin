@@ -3,7 +3,7 @@
 import CenterTile from "./CenterTile.svelte";
 import StaticTile from "./StaticTile.svelte";
 
-export let figure;
+export let target;
 
 </script>
 
@@ -17,7 +17,7 @@ export let figure;
 </style>
 
 <div class="square-container">
-  {#each figure as marked, i}
+  {#each target as marked, i}
     {#if i != 12}
       <StaticTile {marked} />
     {:else}
