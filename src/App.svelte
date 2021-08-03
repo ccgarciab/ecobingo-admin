@@ -1,7 +1,6 @@
 <script>
-  import adapter from 'webrtc-adapter';
 
-  import { users, notifier, startGatherUsers, stopGatherUsers } from './userGathering.js'
+  import { UserGatheringConnection, roomDocument } from './userGathering.js'
 
   import { fade } from 'svelte/transition';
   
@@ -15,12 +14,13 @@
   target[12] = false;
   let loguedUsers = 0;
   let room;
+  let users = [];
   let userCount;
   let user;
 
   function stopGatherAndContinue(){
 
-    stopGatherUsers();
+    UserGatheringConnection.stopGatheringUsers();
     screen = 3;
   }
 
@@ -36,23 +36,13 @@
 
     target = layoutEvent.detail.selectedLayout;
 
-    notifier.addEventListener("notify", (e) => {
+    UserGatheringConnection.onuser = (u) => {
 
-      const {channel, card} = users[loguedUsers];
-      const payload = JSON.stringify({target, card});
-      channel.onopen = (_) => {
-
-        channel.send(payload);
-      }
-      
+      users.push(u);
       loguedUsers += 1;
-
-      if(loguedUsers >= userCount){
-        stopGatherAndContinue();
-      }
-    });
+    }
     
-    startGatherUsers(room, userCount);
+    UserGatheringConnection.startGatheringUsers(room, userCount, target);
   }
   
   </script>
@@ -66,7 +56,7 @@
     <LoadScreen {loguedUsers} on:stopGather={stopGatherAndContinue} />
   {:else if screen == 3}
     <div transition:fade>
-      <PlayingScreen {user} {room} {users} {target} />
+      <PlayingScreen {user} {room} {users} {roomDocument} {target} />
     </div>
   {/if}
   

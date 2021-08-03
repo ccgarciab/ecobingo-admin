@@ -13,6 +13,7 @@ export let user;
 export let room;
 export let users;
 export let target;
+export let roomDocument;
 
 let bingoCode = "";
 let ballotDrawn = false;
@@ -29,7 +30,8 @@ function drawBalot() {
 
 function sendBalot() {
 
-  users.forEach((u) => u.channel.send(bingoCode));
+  //users.forEach((u) => u.channel.send(bingoCode));
+  roomDocument.update({ ballot: bingoCode});
   if(bingoCode != ''){
 
     $markedStore.set(bingoCode, true);
@@ -38,7 +40,7 @@ function sendBalot() {
   ballotDrawn = false;
 }
 
-users.forEach((u) => {
+/* users.forEach((u) => {
 
   u.channel.onmessage = (_) => {
 
@@ -51,7 +53,7 @@ users.forEach((u) => {
       u.channel.send("lost");
     }
   }
-})
+}) */
 
 </script>
 

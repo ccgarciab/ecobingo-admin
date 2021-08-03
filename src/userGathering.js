@@ -18,114 +18,86 @@ if (!firebase.apps.length) {
 
 const firestore = firebase.firestore();
 
-const servers = {
-  iceServers: [
-    {
-      urls: ['stun:stun1.l.google.com:19302',
-              'stun:stun2.l.google.com:19302'],
-    },
-  ],
-  iceCandidatePoolSize: 10,
-};
+let roomDocument;
 
-const unsubscribeFns = [];
-let receivingNewUsers = true;
+class UserGatheringConnection {
 
-const emptyCard = Array(25).fill(false);
-emptyCard[12] = true;
+  static acceptingUsers = true;
+  static userCount = 0;
+  
+  static async startGatheringUsers(room, maxCapacity, target){
 
-async function startGatherUsers(room, userCount){
+    const roomCollection = firestore.collection(room);
+    roomDocument = roomCollection.doc(room);
+    roomDocument.set({ target: JSON.stringify(target), open: true });
 
-  const roomCollection = firestore.collection(room);
-  roomCollection.doc(room).set({});
+    this.closeRoom = () => roomCollection.doc(room).update({ open: false });
 
-  const unsubRoom = roomCollection.onSnapshot((snapshot) => {
-    
-    snapshot.docChanges().forEach((change) => {
-      if(users.length >= userCount) {
-        return;
-      }
-      if (change.type === 'added' && change.doc.get("offer")) {
-
-        connectUser(change.doc);
-      }
-    });
-
-    if(users.length >= userCount){
-
-      stopGatherUsers();
-      roomCollection.doc("room").delete();
-    }
-  });
-
-  unsubscribeFns.push(unsubRoom);
-}
-
-async function connectUser(userDocumentSnapshot){
-
-  if(!receivingNewUsers){
-    return;
-  }
-
-  let userDocument = userDocumentSnapshot.ref;
-  const answerCandidates = userDocument.collection('answerCandidates');
-  const offerCandidates = userDocument.collection('offerCandidates');
-
-  const pc = new RTCPeerConnection(servers);
-  const dataChannel = pc.createDataChannel(`Channel ${users.length}`);
-
-  pc.onicecandidate = (e) => {
-    e.candidate && answerCandidates.add(e.candidate.toJSON());
-  };
-
-  const offerDescription = userDocumentSnapshot.get("offer");
-  await pc.setRemoteDescription(offerDescription);
-
-  const answerDescription = await pc.createAnswer();
-  await pc.setLocalDescription(answerDescription);
-
-  const answer = {
-    type: answerDescription.type,
-    sdp: answerDescription.sdp,
-  };
-
-  await userDocument.update({ answer });
-
-  const unsubOffers = offerCandidates.onSnapshot((snapshot) => {
-    snapshot.docChanges().forEach((change) => {
+    this.unsubRoom = roomCollection.onSnapshot((snapshot) => {
       
-      if (change.type === 'added') {
-        let data = change.doc.data();
-        pc.addIceCandidate(new RTCIceCandidate(data));
+      snapshot.docChanges().forEach((change) => {
+
+        console.log("got snapshot");
+        if(this.userCount >= maxCapacity) return;
+        console.log("no capacity problems");
+        if (change.type === 'added' && change.doc.id !== room) {
+
+          console.log("got user");
+          this.userCount += 1;
+          this.connectUser(change.doc);
+        }
+      });
+
+      if(this.userCount >= maxCapacity){
+
+        this.stopGatheringUsers();
       }
     });
-  });
+  }
+  
+  static async connectUser(userDocumentSnapshot){
 
-  unsubscribeFns.push(unsubOffers);
-
-  const user = {
-
-    name: userDocumentSnapshot.get("user"),
-    connection: pc,
-    channel: dataChannel,
-    card: getRandomCard(),
-    filled: [...emptyCard]
-  };
-
-  dataChannel.onerror = console.error;
-
-  users.push(user);
-
-  notifier.dispatchEvent(new Event("notify"));
+    console.log("trying connect user");
+  
+    if(!this.acceptingUsers) return;
+    
+    let userDocument = userDocumentSnapshot.ref;
+    
+    let name = userDocumentSnapshot.get("name");
+    let card = getRandomCard();
+    
+    userDocument.update({ card: JSON.stringify(card) });
+    
+    let user = {
+    
+      name,
+      card,
+    };
+    
+    this.onuser(user);
+  }
+  
+  static closeRoom() {
+  
+    console.log("Attempting to close room, but none opened yet.");
+  }
+  
+  static unsubRoom() {
+  
+    console.log("Attempting to unsub from room, but none subbed yet.");
+  }
+  
+  static onuser(_user) {
+  
+    console.log("User handler not initialized, being used");
+  }
+  
+  static stopGatheringUsers(){
+  
+    this.acceptingUsers = false;
+    this.unsubRoom();
+    this.closeRoom();
+  }
 }
 
-function stopGatherUsers(){
-
-  unsubscribeFns.forEach((f) => f());
-  receivingNewUsers = false;
-}
-
-const users = [];
-const notifier = document.createElement("null");
-
-export { users, notifier, startGatherUsers, stopGatherUsers };
+export { UserGatheringConnection, roomDocument};
