@@ -1,7 +1,7 @@
 <script>
 
 import {markedStore} from "./markedStore.js";
-import {getRandomCode} from "./randomCard.js";
+import {BallotBox} from "./randomCard.js";
 
 import BalotShowcase from "./BalotShowcase.svelte";
 import Label from "./Label.svelte";
@@ -19,12 +19,13 @@ let bingoCode = "";
 let ballotDrawn = false;
 $: disabledDraw = ballotDrawn;
 $: disabledSend = !ballotDrawn;
+let ballotBox = new BallotBox();
 
 let sidebarShow = false;
 
 function drawBalot() {
 
-  bingoCode = getRandomCode();
+  bingoCode = ballotBox.getRandomCode();
   ballotDrawn = true;
 }
 

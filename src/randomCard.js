@@ -82,4 +82,24 @@ for(let i = 0; i < 5; ++i){
   allCodes = allCodes.concat(range(n, n + 15).map((m) => `${l}${m}`));
 }
 
-export {getRandomCard, getRandomCode, allCodes};
+class BallotBox {
+
+  constructor(){
+    this.available = [...allCodes];
+  }
+
+  getRandomCode(params) {
+  
+    if(!this.available || this.available.length === 0){
+      return 0;
+    }
+
+    const len = this.available.length;
+    const index = Math.floor(Math.random() * len);
+
+    const [code] = this.available.splice(index, 1);
+    return code;
+  }
+}
+
+export {getRandomCard, BallotBox, allCodes};
