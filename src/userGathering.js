@@ -37,12 +37,9 @@ class UserGatheringConnection {
       
       snapshot.docChanges().forEach((change) => {
 
-        console.log("got snapshot");
         if(this.userCount >= maxCapacity) return;
-        console.log("no capacity problems");
         if (change.type === 'added' && change.doc.id !== room) {
 
-          console.log("got user");
           this.userCount += 1;
           this.connectUser(change.doc);
         }
@@ -57,8 +54,6 @@ class UserGatheringConnection {
   
   static async connectUser(userDocumentSnapshot){
 
-    console.log("trying connect user");
-  
     if(!this.acceptingUsers) return;
     
     let userDocument = userDocumentSnapshot.ref;
