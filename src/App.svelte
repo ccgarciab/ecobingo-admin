@@ -1,62 +1,62 @@
 <script>
 
-  import { UserGatheringConnection, roomDocument } from './userGathering.js'
+import { UserGatheringConnection, roomDocument } from './userGathering.js'
 
-  import { fade } from 'svelte/transition';
-  
-  import FigureSelectionScreen from "./FigureSelectionScreen.svelte";
-  import LoadScreen from "./LoadScreen.svelte";
-  import PlayingScreen from "./PlayingScreen.svelte";
-  import StartScreen from "./StartScreen.svelte";
-  
-  let screen = 0;
-  let target = new Array(25).fill(false);
-  target[12] = false;
-  let loguedUsers = 0;
-  let room;
-  let users = [];
-  let userCount;
-  let user;
+import { fade } from 'svelte/transition';
 
-  function stopGatherAndContinue(){
+import FigureSelectionScreen from "./FigureSelectionScreen.svelte";
+import LoadScreen from "./LoadScreen.svelte";
+import PlayingScreen from "./PlayingScreen.svelte";
+import StartScreen from "./StartScreen.svelte";
 
-    UserGatheringConnection.stopGatheringUsers();
-    screen = 3;
-  }
+let screen = 0;
+let target = new Array(25).fill(false);
+target[12] = false;
+let loguedUsers = 0;
+let room;
+let users = [];
+let userCount;
+let user;
 
-  function startTargetSelection(loginEvent){
+function stopGatherAndContinue(){
 
-    screen = 1;
-    ({user, room, userCount} = loginEvent.detail);
-  }
+  UserGatheringConnection.stopGatheringUsers();
+  screen = 3;
+}
 
-  function createRoom(layoutEvent){
+function startTargetSelection(loginEvent){
 
-    screen = 2;
+  screen = 1;
+  ({user, room, userCount} = loginEvent.detail);
+}
 
-    target = layoutEvent.detail.selectedLayout;
+function createRoom(layoutEvent){
 
-    UserGatheringConnection.onuser = (u) => {
+  screen = 2;
 
-      users.push(u);
-      loguedUsers += 1;
-    }
-    
-    UserGatheringConnection.startGatheringUsers(room, userCount, target);
+  target = layoutEvent.detail.selectedLayout;
+
+  UserGatheringConnection.onuser = (u) => {
+
+    users.push(u);
+    loguedUsers += 1;
   }
   
-  </script>
+  UserGatheringConnection.startGatheringUsers(room, userCount, target);
+}
+  
+</script>
   
 
-  {#if screen == 0}
-    <StartScreen on:login={startTargetSelection}/>
-  {:else if screen == 1}
-    <FigureSelectionScreen on:layout={createRoom}/>
-  {:else if screen == 2}
-    <LoadScreen {loguedUsers} on:stopGather={stopGatherAndContinue} />
-  {:else if screen == 3}
-    <div transition:fade>
-      <PlayingScreen {user} {room} {users} {roomDocument} {target} />
-    </div>
-  {/if}
+{#if screen == 0}
+  <StartScreen on:login={startTargetSelection}/>
+{:else if screen == 1}
+  <FigureSelectionScreen on:layout={createRoom}/>
+{:else if screen == 2}
+  <LoadScreen {loguedUsers} on:stopGather={stopGatherAndContinue} />
+{:else if screen == 3}
+  <div transition:fade>
+    <PlayingScreen {user} {room} {users} {roomDocument} {target} />
+  </div>
+{/if}
   
