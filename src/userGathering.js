@@ -67,6 +67,7 @@ class UserGatheringConnection {
     
       name,
       card,
+      userDocument,
     };
     
     this.onuser(user);

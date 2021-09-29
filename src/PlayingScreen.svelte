@@ -31,7 +31,6 @@ function drawBalot() {
 
 function sendBalot() {
 
-  //users.forEach((u) => u.channel.send(bingoCode));
   roomDocument.update({ ballot: bingoCode});
   if(bingoCode != ''){
 
@@ -41,20 +40,18 @@ function sendBalot() {
   ballotDrawn = false;
 }
 
-/* users.forEach((u) => {
+for (let player of users) {
 
-  u.channel.onmessage = (_) => {
-
-    const won = target.every((required, i) => !required || $markedStore.get(u.card[i]));
-    if(won){
-      alert(`El Jugador ${u.name} ganó`);
-      u.channel.send("won");
+  player.userDocument.onSnapshot((snapshot) => {
+    const data = snapshot.data();
+    if(data?.won) {
+      let reallyWon = player.card.every((ballot) => $markedStore.get(ballot));
+      if(reallyWon) {
+        alert(`El jugador ${player.name} ha ganado!`);
+      }
     }
-    else{
-      u.channel.send("lost");
-    }
-  }
-}) */
+  });
+}
 
 </script>
 
